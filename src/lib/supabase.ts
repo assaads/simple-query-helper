@@ -1,4 +1,6 @@
 
+import { createClient } from '@supabase/supabase-js';
+
 // Check if environment variables are defined
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -24,8 +26,6 @@ const createMockClient = () => {
 export const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : createMockClient();
-
-import { createClient } from '@supabase/supabase-js';
 
 export type AuthResponse = {
   success: boolean;
