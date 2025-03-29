@@ -1,11 +1,31 @@
 
+// Check if environment variables are defined
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Create a mock client if credentials are missing
+const createMockClient = () => {
+  console.warn(
+    'Supabase credentials missing. Using mock client. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.'
+  );
+  
+  // Return a mock client with the same interface
+  return {
+    auth: {
+      signUp: () => Promise.resolve({ data: null, error: new Error('Mock client: Auth not configured') }),
+      signInWithPassword: () => Promise.resolve({ data: null, error: new Error('Mock client: Auth not configured') }),
+      signOut: () => Promise.resolve({ error: null }),
+      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    },
+  };
+};
+
+// Create the Supabase client with credentials check
+export const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : createMockClient();
+
 import { createClient } from '@supabase/supabase-js';
-
-// Note: In a real app, these would be in environment variables
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export type AuthResponse = {
   success: boolean;
