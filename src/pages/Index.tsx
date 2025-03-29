@@ -1,11 +1,29 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React from 'react';
+import { Navbar } from '@/components/Navbar';
+import { InputBar } from '@/components/InputBar';
 
 const Index = () => {
+  const handleSubmit = (input: string) => {
+    console.log('User input:', input);
+    // In a real app, we would process the input and display a response
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-dark flex flex-col">
+      <Navbar />
+      
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-16 md:py-24">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
+            Your AI Assistant
+          </h1>
+          <p className="text-lg md:text-xl text-brand">
+            for daily web tasks
+          </p>
+        </div>
+        
+        <InputBar onSubmit={handleSubmit} />
       </div>
     </div>
   );
