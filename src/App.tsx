@@ -1,31 +1,52 @@
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/components/providers/AuthProvider';
+import { RouteProvider } from '@/components/layout/RouteProvider';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { LoadingPage } from '@/components/ui/LoadingIndicators';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import NotFound from "./pages/NotFound";
+function ErrorFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-4 text-center">
+        <h2 className="text-2xl font-bold">Oops! Something went wrong</h2>
+        <p className="text-muted-foreground">
+          An unexpected error occurred. Please try refreshing the page.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
+        >
+          Refresh Page
+        </button>
+      </div>
+    </div>
+  );
+}
 
-const queryClient = new QueryClient();
+function SuspenseFallback() {
+  return (
+    <LoadingPage
+      text="Loading application..."
+      className="min-h-screen"
+    />
+  );
+}
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+export default function App() {
+  return (
+    <ErrorBoundary fallback={<ErrorFallback />}>
+      <React.Suspense fallback={<SuspenseFallback />}>
+        <BrowserRouter>
+          <AuthProvider>
+            <div className="relative min-h-screen">
+              <RouteProvider />
+              <Toaster />
+            </div>
+          </AuthProvider>
+        </BrowserRouter>
+      </React.Suspense>
+    </ErrorBoundary>
+  );
+}

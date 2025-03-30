@@ -1,12 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { InputBar } from '@/components/InputBar';
 
 const Index = () => {
+  const navigate = useNavigate();
+
   const handleSubmit = (input: string) => {
-    console.log('User input:', input);
-    // In a real app, we would process the input and display a response
+    // Navigate to agent page with the query
+    navigate('/agent', { state: { query: input } });
   };
 
   return (
@@ -30,3 +33,4 @@ const Index = () => {
 };
 
 export default Index;
+

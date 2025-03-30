@@ -1,106 +1,100 @@
-
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { signIn } from '@/lib/supabase';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+export default function Login() {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
 
     try {
-      const response = await signIn(email, password);
+      const { error } = await signIn(email, password);
+      if (error) throw error;
       
-      if (response.success) {
-        toast({
-          title: "Login successful",
-          description: "Welcome back!",
-        });
-        navigate('/');
-      } else {
-        toast({
-          title: "Login failed",
-          description: response.message || "Please check your credentials and try again",
-          variant: "destructive",
-        });
-      }
+      navigate('/');
     } catch (error) {
       toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
+        variant: 'destructive',
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to sign in',
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark p-4">
-      <Card className="w-full max-w-md bg-dark-lighter border-dark-border">
-        <CardHeader>
-          <CardTitle className="text-white text-2xl">Login</CardTitle>
-          <CardDescription className="text-gray-400">
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="mx-auto max-w-sm space-y-6 w-full px-4">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">Sign In</h1>
+          <p className="text-gray-500">
             Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-                className="bg-dark-lighter border-dark-border text-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-white">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                className="bg-dark-lighter border-dark-border text-white"
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full bg-brand hover:bg-brand-dark text-white"
-              disabled={loading}
-            >
-              {loading ? "Logging in..." : "Login"}
-            </Button>
-            <p className="text-gray-400 text-sm text-center">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-brand hover:underline">
-                Sign up
-              </Link>
-            </p>
-          </CardFooter>
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="name@example.com"
+              autoComplete="email"
+              required
+              className="w-full rounded-md border border-gray-300 p-2"
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-medium">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              className="w-full rounded-md border border-gray-300 p-2"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full rounded-md bg-primary text-primary-foreground p-2 hover:bg-primary/90 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <span>Signing in...</span>
+              </div>
+            ) : (
+              'Sign In'
+            )}
+          </button>
         </form>
-      </Card>
+        <div className="text-center text-sm">
+          Don't have an account?{' '}
+          <button
+            onClick={() => navigate('/signup')}
+            className="font-medium text-primary hover:underline"
+          >
+            Sign up
+          </button>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default Login;
+}
